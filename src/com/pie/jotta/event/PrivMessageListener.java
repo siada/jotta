@@ -50,15 +50,20 @@ public class PrivMessageListener implements MessageListener {
 					sendMessage(message.getSource(), "Successfully reloaded "+message.getMessageArgs().get(0)+" module.");
 				}
 			} else if(message.getCmd().equals(Constants.CMD_PREFIX+"help")) {
-				if(CommandLoader.list().containsKey(Constants.CMD_PREFIX+message.getMessageArgs().get(0))) {
-					try {
-						Class<?> c = CommandLoader.command(Constants.CMD_PREFIX+message.getMessageArgs().get(0));
-						Object obj = c.newInstance();
-						Method m = c.getMethod("help", message.getClass());
-						m.invoke(obj, new Object[]{message});
-					} catch(Exception e) {
-						e.printStackTrace();
+				if(message.getMessageArgs().size() > 0) {
+					if(CommandLoader.list().containsKey(Constants.CMD_PREFIX+message.getMessageArgs().get(0))) {
+						try {
+							Class<?> c = CommandLoader.command(Constants.CMD_PREFIX+message.getMessageArgs().get(0));
+							Object obj = c.newInstance();
+							Method m = c.getMethod("help", message.getClass());
+							m.invoke(obj, new Object[]{message});
+						} catch(Exception e) {
+							e.printStackTrace();
+						}
 					}
+				} else {
+					String set = CommandLoader.list().keySet().toString();
+					sendMessage(message.getSource(), "Commands: "+set.substring(1,set.length()-1));
 				}
 			} else if((message.getMessage().charAt(0) == Constants.CMD_PREFIX) && !IgnoreManager.isIgnored(message.getSender())) {
 				if(CommandLoader.list().containsKey(message.getCmd())) {
