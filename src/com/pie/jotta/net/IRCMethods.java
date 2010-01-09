@@ -29,6 +29,7 @@ import com.pie.jotta.util.logger.Logger;
 public class IRCMethods {
 
 	public static HashMap<String,String> lastFmNicks = new HashMap<String,String>();
+	public static HashMap<String,HashMap<String,Object>> channels = new HashMap<String,HashMap<String,Object>>();
 	
 	public static void sendMessage(String dest, String message) {
 		IRCSocket.getOutputStream().println("PRIVMSG "+dest+" :"+message);
@@ -80,6 +81,38 @@ public class IRCMethods {
 			lastFmNicks.put(newNick, lastFmNicks.get(oldNick));
 			lastFmNicks.remove(oldNick);
 		}
+	}
+	
+	public static int getAccessLevel(String nick) {
+		int access = 0;
+		switch(nick.substring(0,1).toCharArray()[0]) {
+		
+		case '~':
+			access = 9999;
+		break;
+		
+		case '&':
+			access = 10;
+		break;
+		
+		case '@':
+			access = 5;
+		break;
+		
+		case '%':
+			access = 4;
+		break;
+		
+		case '+':
+			access = 3;
+		break;
+		
+		default: 
+			access = 0;
+		break;
+		
+		}
+		return access;
 	}
 	
 }
