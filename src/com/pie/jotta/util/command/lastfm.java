@@ -1,6 +1,5 @@
 package com.pie.jotta.util.command;
 
-import static com.pie.jotta.Constants.CMD_PREFIX;
 import static com.pie.jotta.net.IRCMethods.sendMessage;
 import net.roarsoftware.lastfm.Track;
 import net.roarsoftware.lastfm.User;
@@ -28,24 +27,19 @@ import com.pie.jotta.net.IRCMethods;
 public class lastfm implements Command {
 
 	public void parse(IRCMessage m) {
-		if(m.getMessage().startsWith(CMD_PREFIX+"lastfm")) {
-			if(m.getMessageArgs().size() == 0) {
-				String user = IRCMethods.lastFmNicks.get(m.getSender());
-				try {
-					Track track = (Track)User.getRecentTracks(user, 1, "34b800583b555c935321ff7d4822c72f").iterator().next();
-					//sendMessage(m.getSource(), user+" listened to: "+track.getName()+" - "+track.getArtist());
-					System.out.println(user+" listened to: "+track.getName()+" - "+track.getArtist());
-				} catch(Exception e) {
-					//sendMessage(m.getSource(), "User set does not exist");
-					System.out.println("User not set.");
-					e.printStackTrace();
-				}
-			} else {
-				Track track = (Track)User.getRecentTracks(m.getMessageArgs().get(0), 1, "34b800583b555c935321ff7d4822c72f").iterator().next();
-				System.out.println(track.getName()+" - "+track.getArtist());
+		if(m.getMessageArgs().size() == 0) {
+			String user = IRCMethods.lastFmNicks.get(m.getSender());
+			try {
+				Track track = (Track)User.getRecentTracks(user, 1, "34b800583b555c935321ff7d4822c72f").iterator().next();
+				sendMessage(m.getSource(), user+" listened to: "+track.getName()+" - "+track.getArtist());
+			} catch(Exception e) {
+				sendMessage(m.getSource(), "User set does not exist");
+				e.printStackTrace();
 			}
+		} else {
+			Track track = (Track)User.getRecentTracks(m.getMessageArgs().get(0), 1, "34b800583b555c935321ff7d4822c72f").iterator().next();
+			System.out.println(track.getName()+" - "+track.getArtist());
 		}
-		
 	}
 
 	public void help(IRCMessage m) {
