@@ -1,6 +1,5 @@
 package com.pie.jotta.util.command;
 
-import static com.pie.jotta.Constants.CMD_PREFIX;
 import static com.pie.jotta.net.IRCMethods.sendMessage;
 
 import java.net.InetAddress;
@@ -28,21 +27,19 @@ import com.pie.jotta.event.IRCMessage;
 public class nslookup implements Command {
 
 	public void parse(IRCMessage m) {
-		if(m.getMessage().startsWith(CMD_PREFIX+"nslookup")) {
-			try {
-				InetAddress[] addrs = InetAddress.getAllByName(m.getMessageArgs().get(0));
-				StringBuilder str = new StringBuilder();
-				for(int i=0;i<addrs.length;i++) {
-					if(addrs[i].getHostAddress().equals("67.215.65.132")) {
-						str.append("Unknown address..");
-					} else {
-						str.append(addrs[i].getHostAddress()+", ");
-					}
+		try {
+			InetAddress[] addrs = InetAddress.getAllByName(m.getMessageArgs().get(0));
+			StringBuilder str = new StringBuilder();
+			for(int i=0;i<addrs.length;i++) {
+				if(addrs[i].getHostAddress().equals("67.215.65.132")) {
+					str.append("Unknown address..");
+				} else {
+					str.append(addrs[i].getHostAddress()+", ");
 				}
-				sendMessage(m.getSource(), str.toString().substring(0, str.length()-2));
-			} catch(UnknownHostException ue) {
-				sendMessage(m.getSource(), ue.getMessage());
 			}
+			sendMessage(m.getSource(), str.toString().substring(0, str.length()-2));
+		} catch(UnknownHostException ue) {
+			sendMessage(m.getSource(), ue.getMessage());
 		}
 	}
 	
