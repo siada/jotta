@@ -1,5 +1,10 @@
 package com.pie.jotta.event;
 
+import java.util.HashMap;
+
+import com.pie.jotta.Constants;
+import com.pie.jotta.irc.User;
+import com.pie.jotta.net.IRCMethods;
 import com.pie.jotta.util.logger.Logger;
 
 /*
@@ -21,9 +26,27 @@ import com.pie.jotta.util.logger.Logger;
 
 public class JoinListener implements MessageListener {
 
+	@SuppressWarnings("unchecked")
 	public void recieve(IRCMessage message) {
 		if(message.getCommand().equals("JOIN")) {
+			if(message.getSender().equals(Constants.BOT_NICK)) {
+				System.out.println("Chan1: "+message.getMessage().substring(1));
+				IRCMethods.channels.put(message.getMessage().substring(1), new HashMap<String,Object>());
+			}
 			Logger.getInstance().log(message.getSender()+" has joined "+ message.getMessage());
+		} else if(message.getCommand().equals("353")) {
+			String chan = message.toString().split(" ")[4].substring(1);
+			System.out.println("Chan2: "+chan);
+			IRCMethods.channels.get(chan).put("users", new HashMap<String,User>());
+			String[] users = message.getMessage().split(" ");
+			for(String user : users) {
+				System.out.println(user+" - "+ IRCMethods.getAccessLevel(user)+ " - "+user.length());
+				if(user.startsWith("@") || user.startsWith("~") || user.startsWith("&") || user.startsWith("%") || user.startsWith("+")) {
+					((HashMap<String,User>)IRCMethods.channels.get(chan).get("users")).put(user.substring(1), new User(user, IRCMethods.getAccessLevel(user)));
+				} else {
+					((HashMap<String,User>)IRCMethods.channels.get(chan).get("users")).put(user, new User(user, IRCMethods.getAccessLevel(user)));
+				}
+			}
 		}
 	}
 	
