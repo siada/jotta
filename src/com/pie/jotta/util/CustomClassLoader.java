@@ -1,11 +1,8 @@
 package com.pie.jotta.util;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 
 /*
  *  This file is part of Jotta.
@@ -25,7 +22,7 @@ import java.net.URLConnection;
  */
 
 public class CustomClassLoader extends ClassLoader{
-
+	
     public CustomClassLoader(ClassLoader parent) {
         super(parent);
     }
@@ -33,12 +30,14 @@ public class CustomClassLoader extends ClassLoader{
     public Class<?> loadClass(String name) throws ClassNotFoundException {
         if(!name.contains("com.pie.jotta.util.command"))
                 return super.loadClass(name);
-
         try {
-            String url = "file:bin/"+name.replaceAll("[\\.]", "/")+".class";
+        	String[] nameSplit = name.split("[\\.]");
+        	name = name.split("[\\.]")[nameSplit.length-1];
+			String url = "file:" + System.getProperty("user.dir")
+					+ "/bin/com/pie/jotta/util/command/"
+					+ (name.endsWith(".class") ? name : name + ".class");
             URL myUrl = new URL(url);
-            URLConnection connection = myUrl.openConnection();
-            InputStream input = connection.getInputStream();
+            InputStream input = myUrl.openConnection().getInputStream();
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             int data = input.read();
 
@@ -50,13 +49,11 @@ public class CustomClassLoader extends ClassLoader{
             input.close();
 
             byte[] classData = buffer.toByteArray();
-            name.replaceAll("/", ".");
-            return defineClass(name, classData, 0, classData.length);
 
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace(); 
+            return defineClass("com.pie.jotta.util.command."+name,
+                    classData, 0, classData.length);
+        } catch(Exception e) {
+        	e.printStackTrace();
         }
 
         return null;

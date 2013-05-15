@@ -10,14 +10,11 @@ import java.util.ArrayList;
 import net.roarsoftware.lastfm.User;
 import net.roarsoftware.lastfm.Track;
 
-import com.pie.jotta.Constants;
 import com.pie.jotta.event.IRCMessage;
 import com.pie.jotta.net.IRCMethods;
 
 import static com.pie.jotta.net.IRCMethods.sendMessage;
-import static com.pie.jotta.net.IRCMethods.joinChan;
 import static com.pie.jotta.Constants.CMD_PREFIX;
-import static com.pie.jotta.Constants.PI;
 
 /*
  *  This file is part of Jotta.
@@ -120,74 +117,7 @@ public class CommandHandler {
 					sendMessage(command.getSource(), "User not found.");
 				}
 			}
-		} else if(command.getMessage().startsWith(CMD_PREFIX+"pi")) {
-			int pos = -1;
-			if(command.getMessageArgs().size() == 1) {
-				try {
-					pos = Integer.parseInt(command.getMessageArgs().get(0));
-					if(pos > 402) {
-						sendMessage(command.getSource(), "Number too large, maximum: 402 places");
-					} else {
-						sendMessage(command.getSource(), PI.substring(0, pos));
-					}
-				} catch(Exception e) {
-					sendMessage(command.getSource(), "Error: "+e.getMessage());
-				}
-			} else {
-				sendMessage(command.getSource(), PI.substring(0, 10));
-			}
-		} else if(command.getMessage().startsWith(CMD_PREFIX+"qdb")) {
-			
-		} else if(command.getMessage().startsWith(CMD_PREFIX+"fib")) {
-			int idx = -1;
-			try {
-				idx = Integer.parseInt(command.getMessageArgs().get(0))	;
-				if(command.getMessageArgs().size() >= 1) {
-					if(idx <= Constants.fibSequence.length-1 && idx > 0) {
-						sendMessage(command.getSource(), ""+Constants.fibSequence[idx+-1]);
-					} else {
-						sendMessage(command.getSource(), "Please supply a number between 1 & "+(Constants.fibSequence.length));
-					}
-				}
-			} catch(Exception e) {
-				sendMessage(command.getSource(), "2nd argument must be a number between 1 and "+(Constants.fibSequence.length));
-			}
-		} else if(command.getMessage().startsWith(CMD_PREFIX+"rcon")) {
-			//sendMessage(command.getSource(), RconPacket.create("127.0.0.1", 6777, "loldix", "status"));
-		} else if(command.getMessage().startsWith(CMD_PREFIX+"say")) {
-			String line = command.getMessageArgs().get(0);
-			line.replaceAll("&quot;","");
-			//line.replaceAll("","");
-			sendMessage(command.getSource(), line);
-		} else if(command.getMessage().startsWith(CMD_PREFIX+"geoip")) {
-			try {
-				/*URL u = new URL("http://www.geoplugin.net/json.gp?ip=80.176.230.183");
-				BufferedReader in = new BufferedReader(new InputStreamReader(u.openStream()));
-				JSONArray array = (JSONArray)JSONValue.parse(in.readLine());
-				Object[] arr = array.toArray();
-				for(int i=0;i<arr.length;i++) {
-					System.out.println(arr[i]);
-				}*/
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		} else if(command.getMessage().startsWith(CMD_PREFIX+"join")) {
-			joinChan(command.getMessageArgs().get(0));
-		} else if(command.getMessage().startsWith(CMD_PREFIX+"up")) {
-			long up = System.currentTimeMillis()-Constants.START_TIME;
-			if(up < 60000) {
-				sendMessage(command.getSource(), ""+(up/1000)+" Seconds.");
-			} else if(up >= 60000 && up < 3600000) {
-				long t = up/60000;
-				sendMessage(command.getSource(), (t==1)?t+" Minute.":t+" Minutes.");
-			} else if(up >= 36000000 && up < 86400000) {
-				long t = up/3600000;
-				sendMessage(command.getSource(), (t == 1) ? t+" Hour." : t+" Hours.");
-			} else {
-				long t = up/864000000;
-				sendMessage(command.getSource(), (t==1)?t+" Day.":t+" Days.");
-			}
-		}
+		} 
 	}
 	
 }

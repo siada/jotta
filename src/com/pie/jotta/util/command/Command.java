@@ -21,8 +21,8 @@ import com.pie.jotta.event.IRCMessage;
 
 public interface Command {
 
-	public abstract void parse(IRCMessage m);
+	public abstract void parse(IRCMessage m) throws Exception;
 	
-	public abstract void help(IRCMessage m);
+	public abstract void help(IRCMessage m) throws Exception;
 	
 }

@@ -3,8 +3,9 @@ package com.pie.jotta.util.command;
 import static com.pie.jotta.net.IRCMethods.sendMessage;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.util.ArrayList;
 
+import com.pie.jotta.Constants;
 import com.pie.jotta.event.IRCMessage;
 
 /*
@@ -24,11 +25,12 @@ import com.pie.jotta.event.IRCMessage;
  *  along with Jotta.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-public class nslookup implements Command {
+public class NSLookup implements Command {
 
-	public void parse(IRCMessage m) {
-		try {
-			InetAddress[] addrs = InetAddress.getAllByName(m.getMessageArgs().get(0));
+	public void parse(IRCMessage m) throws Exception {
+		ArrayList<String> args = m.getMessageArgs();
+		if(args.size() != 0) {
+			InetAddress[] addrs = InetAddress.getAllByName(args.get(0));
 			StringBuilder str = new StringBuilder();
 			for(int i=0;i<addrs.length;i++) {
 				if(addrs[i].getHostAddress().equals("67.215.65.132")) {
@@ -37,14 +39,14 @@ public class nslookup implements Command {
 					str.append(addrs[i].getHostAddress()+", ");
 				}
 			}
-			sendMessage(m.getSource(), str.toString().substring(0, str.length()-2));
-		} catch(UnknownHostException ue) {
-			sendMessage(m.getSource(), ue.getMessage());
+			sendMessage(m.getSource(), m.getSender()+": "+str.toString().substring(0, str.length()-2));
+		} else {
+			help(m);
 		}
 	}
 	
-	public void help(IRCMessage m) {
-		sendMessage(m.getSource(), "Help is currently unavailable for this plugin.");
+	public void help(IRCMessage m) throws Exception {
+		sendMessage(m.getSource(), "Usage: "+Constants.CMD_PREFIX+"nslookup {domain}");
 	}
 	
 }

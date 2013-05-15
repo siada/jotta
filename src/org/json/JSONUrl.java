@@ -28,7 +28,7 @@ public class JSONUrl {
 			BufferedReader r = new BufferedReader(new InputStreamReader(u.openConnection().getInputStream()));
 			String json = "", line = null;
 			while((line = r.readLine()) != null) {
-				json += line;
+				json += line.replaceAll("geoPlugin\\(", "");
 			}
 			return new JSONObject(json);
 		} catch(Exception e) {

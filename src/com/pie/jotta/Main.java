@@ -1,8 +1,14 @@
 package com.pie.jotta;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import com.pie.jotta.event.PingListener;
 import com.pie.jotta.net.IRCSocket;
-import java.util.Timer;
-import java.util.TimerTask;
+import com.pie.jotta.util.logger.Logger;
+
+import javax.swing.Timer;
+//import java.util.TimerTask;
 
 /*
  *  This file is part of Jotta.
@@ -21,20 +27,33 @@ import java.util.TimerTask;
  *  along with Jotta.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-public class Main {
+public class Main implements ActionListener {
 
 	public static void main(String args[]) {
-		new Thread(new Runnable() {
-			public void run() {
-				Timer t = new Timer();
-				t.scheduleAtFixedRate(new TimerTask() {
-					public void run() {
-						System.gc();
-						System.out.println("[System] Garbage collection.");
-					}
-				}, 0, 3000000);
-			};
-		});
+		new Main();
+		new Timer(5000, new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(System.currentTimeMillis()-PingListener.pingTimes[1] >= PingListener.pingDifference) {
+					System.exit(0);
+				}
+			}
+		}).start();
+
+	}
+	
+	public Main() {
+		Timer t = new Timer(300000, this);
+		t.start();
 		new IRCSocket().connect();
 	}
+	
+	public void actionPerformed(ActionEvent e) {
+		new Thread(new Runnable() {
+			public void run() {
+				System.gc();
+				Logger.getInstance().log("[SYSTEM] Garbage Collection.");
+			}
+		}).start();
+	}
+	
 }

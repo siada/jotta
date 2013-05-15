@@ -19,6 +19,6 @@ package com.pie.jotta.event;
 
 public interface MessageListener {
 
-	public abstract void recieve(IRCMessage message);
+	public abstract void recieve(IRCMessage message) throws Exception;
 	
 }

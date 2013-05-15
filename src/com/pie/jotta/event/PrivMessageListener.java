@@ -20,6 +20,7 @@ package com.pie.jotta.event;
 import java.lang.reflect.Method;
 
 import com.pie.jotta.Constants;
+//import com.pie.jotta.net.IRCMethods;
 import com.pie.jotta.util.IgnoreManager;
 import com.pie.jotta.util.command.*;
 import com.pie.jotta.util.logger.Logger;
@@ -28,26 +29,37 @@ import static com.pie.jotta.net.IRCMethods.sendMessage;
 
 public class PrivMessageListener implements MessageListener {
 
+	private int loadedClasses = 0;
 
 	public PrivMessageListener build() {
-		//cmd.add(new Lastfm());
-		//cmd.add(new Nslookup());
 		return this;
 	}
 	
-	public void recieve(IRCMessage message) {
+	public void recieve(IRCMessage message) throws Exception {
 		if(message.getCommand().equals("PRIVMSG")) {
-			if(message.getMessage().startsWith("ACTION")) {	}
-			else {
+			if(message.getMessage().startsWith("ACTION")) {
+			} else {
 				Logger.getInstance().log("<"+message.getSender()+"> ("+message.getSource()+") "+message.getMessage());
 			}
 			
 			if(message.getCmd().equals(Constants.CMD_PREFIX+"reload")) {
-				if(message.getMessageArgs().get(0).equalsIgnoreCase("all")) {
-					sendMessage(message.getSource(), "Successfully reloaded "+CommandLoader.loadClasses()+" classes.");
-				} else {
-					CommandLoader.reloadClass(message.getMessageArgs().get(0));
-					sendMessage(message.getSource(), "Successfully reloaded "+message.getMessageArgs().get(0)+" module.");
+				if(message.getMessageArgs().size() > 0) {
+					if(message.getMessageArgs().get(0).equalsIgnoreCase("all")) {
+						int newClassCount = CommandLoader.loadClasses();
+						if(newClassCount > loadedClasses && loadedClasses != 0) {
+							sendMessage(message.getSource(), "Successfully reloaded "+newClassCount+" classes and "+
+									(newClassCount-loadedClasses)+" new class(es).");
+						} else {
+							sendMessage(message.getSource(), "Successfully reloaded "+newClassCount+" classes.");
+						}
+						loadedClasses = newClassCount;
+					} else {
+						if(CommandLoader.reloadClass(message.getMessageArgs().get(0))) {
+							sendMessage(message.getSource(), "Successfully reloaded "+message.getMessageArgs().get(0)+" module.");
+						} else {
+							sendMessage(message.getSource(), "An error occured.");
+						}
+					}
 				}
 			} else if(message.getCmd().equals(Constants.CMD_PREFIX+"help")) {
 				if(message.getMessageArgs().size() > 0) {
@@ -60,6 +72,8 @@ public class PrivMessageListener implements MessageListener {
 						} catch(Exception e) {
 							e.printStackTrace();
 						}
+					} else {
+						sendMessage(message.getSource(), "Command doesn't exist.");
 					}
 				} else {
 					String set = CommandLoader.list().keySet().toString();

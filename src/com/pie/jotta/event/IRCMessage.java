@@ -2,6 +2,7 @@ package com.pie.jotta.event;
 
 import java.util.ArrayList;
 
+
 /*
  *  This file is part of Jotta.
  *
@@ -44,7 +45,7 @@ public class IRCMessage {
 	}
 	
 	public String getMode() {
-		return in.split(" ")[3].charAt(0) == '+' ? in.split(" ")[3] : null;
+		return in.split(" ")[3].charAt(0) == '+' || in.split(" ")[3].charAt(0) == '-'? in.split(" ")[3] : null;
 	}
 	
 	public String getModeOn() {
@@ -70,9 +71,12 @@ public class IRCMessage {
 	public ArrayList<String> getMessageArgs() {
 		ArrayList<String> args = new ArrayList<String>();
 		for(String arg : getMessage().split(" ")) {
-			args.add(arg);
+			if(!(arg.trim().equals("")) && arg != null) {
+				args.add(arg);
+			}
 		}
-		args.remove(0);
+		if(args.size() > 0) 
+			args.remove(0);
 		return args;
 	}
 	

@@ -24,7 +24,7 @@ public class PartListener implements MessageListener {
 	public void recieve(IRCMessage message) {
 		if(message.getCommand().equals("PART")) {
 			Logger.getInstance().log(message.getSender()+" has left "+message.getSource());
-		}	
+		}
 	}
 	
 }

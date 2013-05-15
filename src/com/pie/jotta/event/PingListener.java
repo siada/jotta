@@ -21,9 +21,19 @@ import static com.pie.jotta.net.IRCMethods.ping;
 
 public class PingListener implements MessageListener {
 
+	public static final long[] pingTimes = new long[2];
+	private int count = 0;
+	public static int pingDifference = 0;
+	
 	public void recieve(IRCMessage message) {
-		if(message.getCommand().equals("PING"))
+		if(message.getCommand().equals("PING")) {
+			pingTimes[count==0?0:1] = System.currentTimeMillis();
+			count++;
+			if(count == 2) {
+				pingDifference = (int)(pingTimes[1]-pingTimes[0]);
+			}
 			ping(message.getSource());
+		}
 	}
 	
 }

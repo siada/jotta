@@ -30,7 +30,7 @@ import com.pie.jotta.util.logger.Logger;
 public class CommandLoader {
 
 	private static HashMap<String, Class<?>> list = new HashMap<String, Class<?>>();
-	private	static CustomClassLoader c = new CustomClassLoader(Main.class.getClassLoader());
+	private static ArrayList<String> classNames = new ArrayList<String>();
 	
 	public static HashMap<String, Class<?>> list() {
 		return list;
@@ -44,26 +44,35 @@ public class CommandLoader {
 		}
 	}
 	
-	public static void reloadClass(String name) {
+	public static boolean reloadClass(String name) {
 		try {
-			if(list.containsKey(Constants.CMD_PREFIX+name)) {
-				list.remove(Constants.CMD_PREFIX+name);
-				list.put(Constants.CMD_PREFIX+name, c.loadClass("com.pie.jotta.util.command."+name));
+			if(list.containsKey(Constants.CMD_PREFIX+name.toLowerCase())) {
+				if(classNames.contains(name)) {
+					CustomClassLoader c = new CustomClassLoader(Main.class.getClassLoader());
+					list.remove(Constants.CMD_PREFIX+name);
+					list.put(Constants.CMD_PREFIX+name, c.loadClass("com.pie.jotta.util.command."+name));
+					return true;
+				} else {
+					return false;
+				}
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
+		return false;
 	}
 	
 	public static int loadClasses() {
+		CustomClassLoader c = new CustomClassLoader(Main.class.getClassLoader());
 		int i = 0;
 		for(Object s : iterateFilesAsList()) {
 			try {
 				list.put("$"+((String)s).toLowerCase(), c.loadClass("com.pie.jotta.util.command."+(String)s));
+				classNames.add((String)s);
+				i++;
 			} catch(Exception e) {
 				e.printStackTrace();
 			}
-			i++;
 		}
 		Logger.getInstance().log("Loaded "+ i +" plugins.");
 		return i;

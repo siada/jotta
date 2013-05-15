@@ -1,9 +1,15 @@
 package com.pie.jotta.util.command;
 
 import static com.pie.jotta.net.IRCMethods.sendMessage;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+
 import net.roarsoftware.lastfm.Track;
 import net.roarsoftware.lastfm.User;
 
+import com.pie.jotta.Constants;
 import com.pie.jotta.event.IRCMessage;
 import com.pie.jotta.net.IRCMethods;
 
@@ -24,26 +30,48 @@ import com.pie.jotta.net.IRCMethods;
  *  along with Jotta.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-public class lastfm implements Command {
+public class Lastfm implements Command {
 
 	public void parse(IRCMessage m) {
-		if(m.getMessageArgs().size() == 0) {
+		ArrayList<String> args = m.getMessageArgs();
+		if(args.get(0).equals("set")) {
+			if(args.size() > 0) {
+				HashMap<String,String> lastfm = IRCMethods.lastFmNicks;
+				lastfm.put(m.getSender(), args.get(1));
+				IRCMethods.writeLastFmNicks();
+			} else {
+				help(m);
+			}
+		}
+		if(args.size() == 0) {
 			String user = IRCMethods.lastFmNicks.get(m.getSender());
 			try {
-				Track track = (Track)User.getRecentTracks(user, 1, "34b800583b555c935321ff7d4822c72f").iterator().next();
-				sendMessage(m.getSource(), user+" listened to: "+track.getName()+" - "+track.getArtist());
+				Track track = (Track)User.getRecentTracks(user, 1,
+						"34b800583b555c935321ff7d4822c72f").iterator().next();
+				
+				sendMessage(m.getSource(), m.getSender()+": "+user+" listened to: "+
+						track.getName()+" - "+track.getArtist());
+				
 			} catch(Exception e) {
-				sendMessage(m.getSource(), "User set does not exist");
+				sendMessage(m.getSource(), m.getSender()+": User set does not exist");
 				e.printStackTrace();
 			}
 		} else {
-			Track track = (Track)User.getRecentTracks(m.getMessageArgs().get(0), 1, "34b800583b555c935321ff7d4822c72f").iterator().next();
-			System.out.println(track.getName()+" - "+track.getArtist());
+			Iterator<Track> i = User.getRecentTracks(args.get(0), 1, Constants.API_KEY).iterator();
+			if(i.hasNext()) {
+				Track track = (Track)i.next();
+				sendMessage(m.getSource(), m.getSender()+": "+args.get(0)+
+						" listened to: "+track.getName()+" - "+track.getArtist());
+			} else {
+				sendMessage(m.getSource(), "Unable to find user.");
+			}
 		}
 	}
 
 	public void help(IRCMessage m) {
-		sendMessage(m.getSource(), "No help defined thus far.");
+		sendMessage(m.getSender(), "Usage: "+Constants.CMD_PREFIX+"lastfm "+
+				"[last.fm user] OR "+Constants.CMD_PREFIX+"lastfm set "+
+				"{last.fm user}");
 	}
 	
 }

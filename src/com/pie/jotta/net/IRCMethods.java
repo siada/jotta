@@ -3,8 +3,10 @@ package com.pie.jotta.net;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+
 
 import com.pie.jotta.Constants;
 import com.pie.jotta.util.logger.Logger;
@@ -28,8 +30,9 @@ import com.pie.jotta.util.logger.Logger;
 
 public class IRCMethods {
 
-	public static HashMap<String,String> lastFmNicks = new HashMap<String,String>();
-	public static HashMap<String,HashMap<String,Object>> channels = new HashMap<String,HashMap<String,Object>>();
+	public static final HashMap<String,String> lastFmNicks = new HashMap<String,String>();
+	public static FileReader markovFile;
+	public static final ArrayList<String> badWords = new ArrayList<String>();
 	
 	public static void sendMessage(String dest, String message) {
 		IRCSocket.getOutputStream().println("PRIVMSG "+dest+" :"+message);
@@ -37,9 +40,13 @@ public class IRCMethods {
 	}
 	
 	public static void joinChan(String chan) {
-		IRCSocket.getOutputStream().println("JOIN #"+chan);
+		IRCSocket.getOutputStream().println("JOIN "+((chan.charAt(0) == '#') ? chan : "#"+chan));
 	}
 
+	public static void partChan(String chan) {
+		IRCSocket.getOutputStream().println("PART "+((chan.charAt(0) == '#') ? chan : "#"+chan));
+	}
+	
 	public static void ping(String dest) {
 		IRCSocket.getOutputStream().println("PONG "+dest);
 	}
@@ -113,6 +120,82 @@ public class IRCMethods {
 		
 		}
 		return access;
+	}
+	
+	public static char getAccessChar(int level) {
+		char oper = ' ';
+		switch(level) {
+		
+		case 9999:
+			oper = '~';
+		break;
+		
+		case 10:
+			oper = '&';
+		break;
+			
+		case 5:
+			oper = '@';
+		break;
+		
+		case 4:
+			oper = '%';
+		break;
+		
+		case 3:
+			oper = '+';
+		break;
+		
+		default:
+			oper = ' ';
+		break;
+		
+		}
+		return oper;
+	}
+	
+	public static String getDayName(int day) {
+		String dayStr = null;
+		if(day > 7 || day < 0) {
+			dayStr =  "Day must be between 0 and 7";
+		} else {
+			switch(day) {
+			
+			case 1:
+				dayStr = "Sunday";
+				break;
+			
+			case 2:
+				dayStr = "Monday";
+				break;
+			
+			case 3:
+				dayStr = "Tuesday";
+				break;
+			
+			case 4:
+				dayStr = "Wednesday";
+				break;
+			
+			case 5:
+				dayStr = "Thursday";
+				break;
+			
+			case 6:
+				dayStr = "Friday";
+				break;
+
+			case 7:
+				dayStr = "Saturday";
+				break;
+				
+			default:
+				dayStr = "Not found";
+			break;
+				
+			}
+		}
+		return dayStr;
 	}
 	
 }

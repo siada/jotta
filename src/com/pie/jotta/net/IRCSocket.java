@@ -36,26 +36,20 @@ public class IRCSocket {
 	private static PrintStream out;
 	private static BufferedReader in;
 	private final ArrayList<MessageListener> listeners = new ArrayList<MessageListener>();
+	private IRCMessage msg = new IRCMessage(null);
+	
 	
 	public void connect() {
 		try {
-			addListeners();
-			IRCMethods.buildLastFmNicks();
-			IgnoreManager.buildIgnoreList();
-			Logger.getInstance().log("Connecting...");
-			CommandLoader.loadClasses();
-			IRCMessage msg = new IRCMessage(null);
-			auth("NO LOL");
+			auth("wat123");
 			while(true) {
 				if((msg.setMessage(in.readLine())) == null)
 					break;
-				synchronized(listeners) {
-					for(MessageListener listener : listeners) {
-						listener.recieve(msg);
-					}
+				for(MessageListener listener : listeners) {
+					listener.recieve(msg);
 				}
 			} 
-		} catch(IOException ioe) {
+		} catch(Exception ioe) {
 			ioe.printStackTrace();
 		}
 	}
@@ -92,21 +86,25 @@ public class IRCSocket {
 	
 	public void addListeners() {
 		addMessageListener(new PingListener());
-		addMessageListener(new PrivMessageListener().build());
+		addMessageListener(new PrivMessageListener());
 		addMessageListener(new QuitListener());
 		addMessageListener(new JoinListener());
 		addMessageListener(new PartListener());
 		addMessageListener(new ModeListener());
-		addMessageListener(new NickListener());
+		addMessageListener(new NickListener());	
 	}
 	
 	public IRCSocket() {
 		try {
+			Logger.getInstance().log("Connecting...");
 			s = new Socket(Constants.IRC_SERVER, Constants.IRC_PORT);
 			out = new PrintStream(s.getOutputStream());
 			in = new BufferedReader(new InputStreamReader(s.getInputStream()));
+			addListeners();
+			IRCMethods.buildLastFmNicks();
+			IgnoreManager.buildIgnoreList();
+			CommandLoader.loadClasses();
 		} catch(IOException ioe) {
-			//Logger.getInstance().log(ioe.getMessage());
 			ioe.printStackTrace();
 		}
 	}

@@ -23,7 +23,7 @@ public class User {
 	private int access;
 	
 	public User(String user, int access) {
-		this.user = user;
+		this.user = access > 0 ? user.substring(1) : user;
 		this.access = access;
 	}
 	
@@ -31,8 +31,16 @@ public class User {
 		return user;
 	}
 	
+	public void setUser(String newUser) {
+		this.user = newUser;
+	}
+	
 	public int getAccess() {
 		return access;
+	}
+	
+	public void setAccess(int newAccess) {
+		this.access = newAccess;
 	}
 	
 }
